@@ -24,4 +24,7 @@ p.run();
 
 ```
 
+## TODO
 
+* use ffi to read utmp definitions from libc.. don't hardcode them
+* osx/bsd support - linux only for now
