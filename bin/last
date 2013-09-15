@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+/**
+ * last written in node.js 
+ *
+ */
+
+
+// first, parse everything
+//
+var Utmp = require('../lib');
+
+var items = {};
+function fetch(path, callback) {
+
+  var utmp = new Utmp(path);
+
+  utmp.on('data', function(data) {
+    if (data.type == 'USER_PROCESS') {
+      items[data.pid] = items[data.pid] || { login: null, logout: null };
+      items[data.pid].login = data;
+    } else if (data.type == 'DEAD_PROCESS') {
+      items[data.pid] = items[data.pid] || { login: null, logout: null };
+      items[data.pid].logout = data;
+    };
+  })
+
+  utmp.on('end', function() {
+    callback(null, items);
+  })
+
+  utmp.run();
+};
+
+fetch('/var/run/utmp', function(err, active) {
+  fetch('/var/log/wtmp', function(err, all) {
+
+    for (var k in all) {
+      var value = all[k];
+      if (value.login) {
+        var login = value.login;
+        if (value.logout) {
+          var logout = value.logout
+          console.log(login.pid + " " + login.user, login.line, login.host, login.timestamp, logout.timestamp) 
+        } else {
+          console.log(login.pid + " " + login.user, login.line, login.host, login.timestamp, "- Still logged in") 
+        }
+      }
+    }
+  });
+});
+
