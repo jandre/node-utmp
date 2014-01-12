@@ -1,6 +1,6 @@
 {
   "name": "utmp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "utmp parser for node",
   "main": "lib/index.js",
   "scripts": {
